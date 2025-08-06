@@ -2,12 +2,12 @@
   "name": "contentful-scraper",
   "version": "1.0.0",
   "description": "Node.js app to scan Contentful space for objects with empty title fields",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "npm run build && node dist/index.js",
     "dev": "ts-node src/index.ts",
-    "smugmug": "ts-node src/smugmug-metadata.ts",
+    "csv-diff": "ts-node src/csv-diff.ts",
     "clean": "rm -rf dist"
   },
   "dependencies": {

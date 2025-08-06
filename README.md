@@ -86,6 +86,19 @@ CSV files are timestamped and include:
 - Entry ID, Display Field Name/Value, Title Field Value
 - Content Type, Available Fields, Last Updated
 
+### CSV Diff Tool
+
+After editing a CSV file with updated titles, compare it against the original to see what changed:
+
+```bash
+npm run csv-diff empty-titles-2025-08-06.csv empty-titles-edited.csv
+```
+
+This will show:
+- Which entries were updated
+- Before/after values for changed fields
+- Generate a text report of all changes
+
 ## Detection Logic
 
 The tool flags entries where **either** condition is true:
