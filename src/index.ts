@@ -50,8 +50,8 @@ function extractPlainValue(value: any): string {
 function generateCSV(entries: EntryMetadata[]): string {
   const headers = [
     'Entry ID',
-    'Display Field Value',
     'Display Field Name',
+    'Display Field Value',
     'Title Field Value',
     'Content Type',
     'Available Fields',
@@ -60,8 +60,8 @@ function generateCSV(entries: EntryMetadata[]): string {
   
   const rows = entries.map(entry => [
     entry.id,
-    extractPlainValue(entry.displayFieldValue),
     entry.displayFieldName || '',
+    extractPlainValue(entry.displayFieldValue),
     JSON.stringify(entry.titleValue),
     entry.contentType,
     Object.keys(entry.fields).join('; '),
@@ -85,15 +85,41 @@ async function scanForEmptyTitles(targetContentType?: string, outputCSV: boolean
     const space = await managementClient.getSpace(process.env.CONTENTFUL_SPACE_ID!);
     const environment = await space.getEnvironment('master');
     
-    const queryParams: Record<string, any> = {
-      limit: 1000
-    };
+    // Fetch all entries with pagination
+    const allEntries: any[] = [];
+    let skip = 0;
+    const limit = 1000;
+    let hasMore = true;
+
+    console.log('Fetching entries...');
     
-    if (targetContentType) {
-      queryParams['content_type'] = targetContentType;
+    while (hasMore) {
+      const queryParams: Record<string, any> = {
+        limit: limit,
+        skip: skip
+      };
+      
+      if (targetContentType) {
+        queryParams['content_type'] = targetContentType;
+      }
+      
+      const entriesBatch = await environment.getEntries(queryParams);
+      allEntries.push(...entriesBatch.items);
+      
+      console.log(`Fetched ${allEntries.length} entries so far...`);
+      
+      // Check if we've reached the end
+      hasMore = entriesBatch.items.length === limit;
+      skip += limit;
+      
+      // Add small delay to respect rate limits
+      if (hasMore) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
     }
-    
-    const entries = await environment.getEntries(queryParams);
+
+    // Create a mock entries object to match the original structure
+    const entries = { items: allEntries };
 
     // Get content types to find display fields
     const contentTypes = await environment.getContentTypes();
@@ -102,6 +128,7 @@ async function scanForEmptyTitles(targetContentType?: string, outputCSV: boolean
     );
 
     const emptyTitleEntries: EntryMetadata[] = [];
+    let entriesWithTitles = 0;
 
     entries.items.forEach(entry => {
       const title = entry.fields.title;
@@ -121,11 +148,20 @@ async function scanForEmptyTitles(targetContentType?: string, outputCSV: boolean
           displayFieldValue,
           fields: entry.fields
         });
+      } else {
+        entriesWithTitles++;
       }
     });
 
+    const totalEntries = entries.items.length;
+    const entriesWithoutTitles = emptyTitleEntries.length;
     const typeFilter = targetContentType ? ` ${targetContentType}` : '';
-    console.log(`Found ${emptyTitleEntries.length}${typeFilter} entries with empty title or display fields:\n`);
+
+    console.log(`Scan Results${typeFilter}:`);
+    console.log(`- Total entries scanned: ${totalEntries}`);
+    console.log(`- Entries with proper titles: ${entriesWithTitles}`);
+    console.log(`- Entries missing titles: ${entriesWithoutTitles}`);
+    console.log(`\nFound ${entriesWithoutTitles}${typeFilter} entries with empty title or display fields:\n`);
 
     if (outputCSV) {
       const csvContent = generateCSV(emptyTitleEntries);
