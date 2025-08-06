@@ -4,12 +4,13 @@ A TypeScript tool that scans Contentful spaces for entries with missing or empty
 
 ## Features
 
-- **Dual title detection**: Checks custom title fields and Contentful display fields
-- **Content type filtering**: Scan all content or target specific types
-- **CSV export**: Generate reports for analysis in Excel/Google Sheets  
-- **Pagination support**: Handles spaces with any number of entries
-- **Localization aware**: Properly detects empty values across all locales
-- **Progress tracking**: Shows scan progress and summary statistics
+- **Dual title detection**: Checks both custom `title` fields and Contentful's designated display fields
+- **Content type filtering**: Scan all content types or target specific ones (e.g., `blogPost`, `product`)
+- **CSV export**: Generate timestamped reports for analysis in Excel/Google Sheets  
+- **Complete pagination**: Automatically handles spaces with any number of entries (not limited to 1000)
+- **Localization support**: Properly detects empty values across all locales and languages
+- **Progress tracking**: Real-time progress updates and summary statistics (entries scanned, with/without titles)
+- **Rate limit compliance**: Built-in delays to respect Contentful API limits
 
 ## Prerequisites
 
@@ -86,18 +87,6 @@ CSV files are timestamped and include:
 - Entry ID, Display Field Name/Value, Title Field Value
 - Content Type, Available Fields, Last Updated
 
-### CSV Diff Tool
-
-After editing a CSV file with updated titles, compare it against the original to see what changed:
-
-```bash
-npm run csv-diff empty-titles-2025-08-06.csv empty-titles-edited.csv
-```
-
-This will show:
-- Which entries were updated
-- Before/after values for changed fields
-- Generate a text report of all changes
 
 ## Detection Logic
 

@@ -90,10 +90,7 @@ ehthumbs.db
 Thumbs.db
 
 # Generated CSV files
-empty-titles-*.csv
-
-# Generated reports
-update-report-*.txt
+*.csv
 
 # Temporary files
 *.tmp

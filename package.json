@@ -7,7 +7,6 @@
     "build": "tsc",
     "start": "npm run build && node dist/index.js",
     "dev": "ts-node src/index.ts",
-    "csv-diff": "ts-node src/csv-diff.ts",
     "clean": "rm -rf dist"
   },
   "dependencies": {
