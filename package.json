@@ -1,0 +1,26 @@
+{
+  "name": "contentful-scraper",
+  "version": "1.0.0",
+  "description": "Node.js app to scan Contentful space for objects with empty title fields",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "smugmug": "ts-node src/smugmug-metadata.ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "contentful": "^10.6.21",
+    "contentful-management": "^11.11.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  },
+  "keywords": ["contentful", "scraper", "nodejs"],
+  "author": "",
+  "license": "MIT"
+}
