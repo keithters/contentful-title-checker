@@ -1,179 +1,112 @@
 # Contentful Title Checker
 
-**Find content in your Contentful space that's missing titles.**
+A TypeScript tool that scans Contentful spaces for entries with missing or empty title information. Identifies content without proper titles across both custom `title` fields and Contentful's designated display fields.
 
-This tool scans your Contentful website content and creates a report showing which articles, pages, or other content are missing titles. Perfect for content audits and quality checks.
+## Features
 
-## What You'll Need
+- **Dual title detection**: Checks custom title fields and Contentful display fields
+- **Content type filtering**: Scan all content or target specific types
+- **CSV export**: Generate reports for analysis in Excel/Google Sheets  
+- **Pagination support**: Handles spaces with any number of entries
+- **Localization aware**: Properly detects empty values across all locales
+- **Progress tracking**: Shows scan progress and summary statistics
 
-- A computer with internet access
-- Your Contentful login details
-- 10 minutes to set up
+## Prerequisites
 
-## What This Tool Does
+- Node.js 16+ 
+- Contentful Management API token with read access
 
-✅ **Finds missing titles** - Identifies content without proper titles  
-✅ **Checks all content types** - Scans blog posts, pages, products, etc.  
-✅ **Creates Excel-friendly reports** - Exports results you can open in spreadsheets  
-✅ **Shows progress** - Tells you how much content has proper titles vs. missing titles
+## Installation
 
-## Step-by-Step Setup
+```bash
+git clone <repository-url>
+cd contentful-scraper
+npm install
+```
 
-### Step 1: Download Node.js
-1. Go to [nodejs.org](https://nodejs.org)
-2. Download the version marked "Recommended for Most Users"  
-3. Install it (keep clicking "Next" with default settings)
-4. Restart your computer
+## Configuration
 
-### Step 2: Download This Tool
-1. Click the green "Code" button at the top of this page
-2. Select "Download ZIP"
-3. Unzip the file to your Desktop
-4. You should now have a folder called `contentful-scraper`
+Create a `.env` file from the example:
 
-### Step 3: Install the Tool
-1. **Windows**: Press `Windows key + R`, type `cmd`, press Enter
-2. **Mac**: Press `Cmd + Space`, type `terminal`, press Enter
-3. Type these commands one at a time (press Enter after each):
-   ```
-   cd Desktop/contentful-scraper
-   npm install
-   ```
-4. Wait for it to finish (might take a few minutes)
+```bash
+cp .env.example .env
+```
 
-### Step 4: Get Your Contentful Information
+Add your Contentful credentials:
 
-#### Get Your Space ID
-1. Log into [contentful.com](https://contentful.com)
-2. Click on your website/space name
-3. Click "Settings" in the top menu
-4. Click "General settings"
-5. Copy the "Space ID" (looks like: abc123def456)
+```env
+CONTENTFUL_SPACE_ID=your_space_id
+CONTENTFUL_MANAGEMENT_TOKEN=your_management_token
+```
 
-#### Get Your Access Token
-1. Still in Contentful, click "Settings" → "API keys"
-2. Click the "Content management tokens" tab
-3. Click "Generate personal token"
-4. Enter a name like "Title Checker"
-5. Copy the long token that appears
-6. **Keep this private!** Don't share it with anyone
+### Getting Credentials
 
-### Step 5: Add Your Information
-1. In the `contentful-scraper` folder, find the file `.env.example`
-2. Make a copy and rename it to `.env` (remove the `.example` part)
-3. Open the `.env` file in Notepad (Windows) or TextEdit (Mac)
-4. Replace the placeholder text:
-   ```
-   CONTENTFUL_SPACE_ID=abc123def456
-   CONTENTFUL_MANAGEMENT_TOKEN=your_long_token_here
-   ```
-5. Save the file
+**Space ID**: Contentful → Settings → General settings  
+**Management Token**: Contentful → Settings → API keys → Content management tokens → Generate personal token
 
-## How to Use
+## Usage
 
-### Check All Your Content
-1. Open Terminal/Command Prompt again
-2. Type: `npm run dev`
-3. Press Enter and wait
+### Basic Commands
 
-You'll see something like:
+```bash
+# Scan all content types
+npm run dev
+
+# Scan specific content type  
+npm run dev blogPost
+
+# Generate CSV report
+npm run dev -- --csv
+
+# Scan specific type and export CSV
+npm run dev blogPost -- --csv
+```
+
+### Sample Output
+
 ```
 Scan Results:
 - Total entries scanned: 150
 - Entries with proper titles: 142
 - Entries missing titles: 8
+
+Found 8 entries with empty title or display fields:
+
+1. Entry ID: abc123
+   Content Type: blogPost
+   Last Updated: 2025-01-15T10:30:00Z
+   Display Field (Entry Title): headline
+   Display Field Value: null
+   Available Fields: slug, body, author
 ```
 
-### Create a Spreadsheet Report
-1. Type: `npm run dev -- --csv`
-2. Press Enter and wait
-3. Look in the `contentful-scraper` folder for a file like `empty-titles-2025-08-06...csv`
-4. Open this file in Excel or Google Sheets
+### CSV Export
 
-### Check Only One Content Type
-If you only want to check blog posts, products, etc:
-1. Type: `npm run dev blogPost` (replace `blogPost` with your content type name)
-2. Press Enter
+CSV files are timestamped and include:
+- Entry ID, Display Field Name/Value, Title Field Value
+- Content Type, Available Fields, Last Updated
 
-**Need to find your content type names?**
-1. Go to Contentful → Content model
-2. The name is shown under each content type
+## Detection Logic
 
-## What the Results Mean
+The tool flags entries where **either** condition is true:
 
-The tool will show you:
-- **Total entries scanned**: How much content you have
-- **Entries with proper titles**: Content that's fine
-- **Entries missing titles**: Content that needs attention
+1. **Empty title field**: `null`, `undefined`, empty string, or localized object with all empty values
+2. **Empty display field**: Same criteria applied to the content type's designated display field
 
-For each problem entry, you'll see:
-- **Entry ID**: The unique identifier in Contentful
-- **Content Type**: What kind of content (blog post, page, etc.)
-- **Title problems**: What's missing or empty
+## Content Type IDs
 
-## Common Issues
+Find content type IDs in Contentful → Content model → API identifier
 
-**"Command not found"**
-- Make sure you installed Node.js and restarted your computer
+## Troubleshooting
 
-**"Not Found" error**
-- Double-check your Space ID and token in the `.env` file
-- Make sure there are no extra spaces
+**Authentication Errors**
+- Verify `CONTENTFUL_SPACE_ID` and `CONTENTFUL_MANAGEMENT_TOKEN` in `.env`
+- Ensure token has proper permissions and hasn't expired
 
-**"Permission denied"**
-- Your token might not have the right access
-- Try generating a new token in Contentful
+**Rate Limits**
+- Tool includes 200ms delays between requests
+- Large spaces (>10k entries) may take several minutes
 
-## Need Help?
-
-**The tool isn't working?**
-1. Make sure Node.js is installed (try typing `node --version` in Terminal)
-2. Check your `.env` file has the right Space ID and token
-3. Make sure your Contentful token hasn't expired
-
-**Want to run it regularly?**
-- Run the tool once a month to check for new content missing titles
-- Use the CSV export to track improvements over time
-
-**Questions about results?**
-- Entry ID helps you find the specific content in Contentful
-- Content Type tells you what kind of content needs fixing
-- Use the spreadsheet to prioritize which content to fix first
-
----
-
-## For Developers
-
-<details>
-<summary>Technical details (click to expand)</summary>
-
-### Features
-- Dual title detection (custom fields + display fields)  
-- Localization support across all locales
-- Content type filtering capabilities
-- CSV export with clean data formatting
-- Automatic pagination for large content spaces
-- Rate limit compliance with Contentful API
-
-### Alternative Commands
-```bash
-# Development mode (faster)
-npm run dev
-
-# Production mode (compiled)
-npm start
-
-# Specific content type
-npm run dev blogPost
-
-# Generate CSV report  
-npm run dev -- --csv
-```
-
-### SmugMug Integration
-Additional utility for SmugMug album metadata:
-```bash
-npm run smugmug <album-id-or-url>
-```
-
-</details>
+**No Results Found**
+- Check content type ID spelling (case-sensitive)
+- Verify entries exist for the specified content type
